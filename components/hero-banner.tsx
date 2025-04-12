@@ -180,9 +180,9 @@ export default function HeroBanner() {
                   </Button>
 
                   <Button
-                    size="lg"
-                    variant="outline"
-                    className="text-white border-white/30 hover:bg-white/10 backdrop-blur-sm"
+                      size="lg"
+                      variant="outline"
+                      className="text-white border-blue-500/50 bg-blue-500/10 hover:bg-blue-500/20 hover:border-blue-500 backdrop-blur-sm"
                   >
                     Наши работы
                   </Button>

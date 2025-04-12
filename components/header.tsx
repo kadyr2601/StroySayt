@@ -36,6 +36,19 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
+  // Блокировка прокрутки при открытом меню
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [isMenuOpen])
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
   const closeMenu = () => setIsMenuOpen(false)
 
@@ -352,127 +365,141 @@ export default function Header() {
             )}
           </div>
 
-          {/* Оригинальное мобильное меню */}
-          {isMobile && isMenuOpen && (
-              <div className="fixed inset-0 z-50 bg-gradient-to-br from-indigo-900 to-blue-800">
-                <div className="container mx-auto px-4 py-8 h-full flex flex-col">
-                  <div className="flex justify-between items-center mb-8">
-                    <div className="flex items-center">
-                      <Link href="/" className="text-2xl font-bold text-white" onClick={closeMenu}>
-                        Логотип
+          {/* Мобильное меню */}
+          {isMobile && (
+              <div
+                  className={`fixed inset-0 bg-gradient-to-br from-indigo-900 to-blue-800 z-50 transition-all duration-300 ${
+                      isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                  }`}
+                  style={{
+                    backdropFilter: "blur(10px)",
+                  }}
+              >
+                <div className="h-full w-full flex flex-col">
+                  <div className="container mx-auto px-4 py-8 flex-1 flex flex-col bg-gradient-to-br from-indigo-900 to-blue-800">
+                    <div className="flex justify-between items-center mb-8">
+                      <div className="flex items-center">
+                        <Link href="/" className="text-2xl font-bold text-white" onClick={closeMenu}>
+                          Логотип
+                        </Link>
+                      </div>
+                      <button onClick={closeMenu} className="text-white focus:outline-none">
+                        <X size={24} />
+                      </button>
+                    </div>
+
+                    <nav className="flex-1 flex flex-col space-y-4">
+                      <Link href="/" className="text-white text-xl py-3 flex items-center space-x-3" onClick={closeMenu}>
+                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                          <Home size={20} />
+                        </div>
+                        <span>Главная</span>
                       </Link>
-                      <span className="text-white/80 text-sm ml-2 flex items-center">
-                    <MapPin size={12} className="mr-1" /> Дубай, ОАЭ
-                  </span>
-                    </div>
-                    <button onClick={closeMenu} className="text-white focus:outline-none">
-                      <X size={24} />
-                    </button>
-                  </div>
 
-                  <nav className="flex-1 flex flex-col space-y-4">
-                    <Link href="/" className="text-white text-xl py-3 flex items-center space-x-3" onClick={closeMenu}>
-                      <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <Home size={20} />
-                      </div>
-                      <span>Главная</span>
-                    </Link>
-
-                    <div>
-                      <button
-                          onClick={() => toggleDropdown("mobile-services")}
-                          className="text-white text-xl py-3 w-full text-left flex items-center justify-between space-x-3"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                            <Briefcase size={20} />
+                      <div>
+                        <button
+                            onClick={() => toggleDropdown("mobile-services")}
+                            className="text-white text-xl py-3 w-full text-left flex items-center justify-between space-x-3"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                              <Briefcase size={20} />
+                            </div>
+                            <span>Услуги</span>
                           </div>
-                          <span>Услуги</span>
-                        </div>
-                        <ChevronDown
-                            size={20}
-                            className={`transition-transform duration-300 ${
-                                activeDropdown === "mobile-services" ? "rotate-180" : ""
+                          <ChevronDown
+                              size={20}
+                              className={`transition-transform duration-300 ${
+                                  activeDropdown === "mobile-services" ? "rotate-180" : ""
+                              }`}
+                          />
+                        </button>
+                        <div
+                            className={`mt-2 ml-12 space-y-3 border-l-2 border-white/20 pl-4 overflow-hidden transition-all duration-300 ${
+                                activeDropdown === "mobile-services" ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
                             }`}
-                        />
-                      </button>
-                      {activeDropdown === "mobile-services" && (
-                          <div className="mt-2 ml-12 space-y-3 border-l-2 border-white/20 pl-4">
-                            {servicesItems.map((item) => (
-                                <Link
-                                    key={item.slug}
-                                    href={`/services/${item.slug}`}
-                                    className="text-white/80 hover:text-white block py-2 transition-colors"
-                                    onClick={closeMenu}
-                                >
-                                  {item.title}
-                                </Link>
-                            ))}
-                          </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <button
-                          onClick={() => toggleDropdown("mobile-projects")}
-                          className="text-white text-xl py-3 w-full text-left flex items-center justify-between space-x-3"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                            <Building2 size={20} />
-                          </div>
-                          <span>Проекты</span>
+                        >
+                          {servicesItems.map((item) => (
+                              <Link
+                                  key={item.slug}
+                                  href={`/services/${item.slug}`}
+                                  className="text-white/80 hover:text-white block py-2 transition-colors"
+                                  onClick={closeMenu}
+                              >
+                                {item.title}
+                              </Link>
+                          ))}
                         </div>
-                        <ChevronDown
-                            size={20}
-                            className={`transition-transform duration-300 ${
-                                activeDropdown === "mobile-projects" ? "rotate-180" : ""
-                            }`}
-                        />
-                      </button>
-                      {activeDropdown === "mobile-projects" && (
-                          <div className="mt-2 ml-12 space-y-3 border-l-2 border-white/20 pl-4">
-                            {projectsItems.map((item) => (
-                                <Link
-                                    key={item.slug}
-                                    href={`/projects/${item.slug}`}
-                                    className="text-white/80 hover:text-white block py-2 transition-colors"
-                                    onClick={closeMenu}
-                                >
-                                  {item.title}
-                                </Link>
-                            ))}
+                      </div>
+
+                      <div>
+                        <button
+                            onClick={() => toggleDropdown("mobile-projects")}
+                            className="text-white text-xl py-3 w-full text-left flex items-center justify-between space-x-3"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                              <Building2 size={20} />
+                            </div>
+                            <span>Проекты</span>
                           </div>
-                      )}
+                          <ChevronDown
+                              size={20}
+                              className={`transition-transform duration-300 ${
+                                  activeDropdown === "mobile-projects" ? "rotate-180" : ""
+                              }`}
+                          />
+                        </button>
+                        <div
+                            className={`mt-2 ml-12 space-y-3 border-l-2 border-white/20 pl-4 overflow-hidden transition-all duration-300 ${
+                                activeDropdown === "mobile-projects" ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                            }`}
+                        >
+                          {projectsItems.map((item) => (
+                              <Link
+                                  key={item.slug}
+                                  href={`/projects/${item.slug}`}
+                                  className="text-white/80 hover:text-white block py-2 transition-colors"
+                                  onClick={closeMenu}
+                              >
+                                {item.title}
+                              </Link>
+                          ))}
+                        </div>
+                      </div>
+
+                      <Link
+                          href="/about"
+                          className="text-white text-xl py-3 flex items-center space-x-3"
+                          onClick={closeMenu}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                          <Users size={20} />
+                        </div>
+                        <span>О нас</span>
+                      </Link>
+
+                      <Link
+                          href="/contact"
+                          className="text-white text-xl py-3 flex items-center space-x-3"
+                          onClick={closeMenu}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+                          <Phone size={20} />
+                        </div>
+                        <span>Контакты</span>
+                      </Link>
+                    </nav>
+
+                    <div className="mt-auto pt-6">
+                      <Link
+                          href="/contact"
+                          className="block w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-center font-medium text-lg text-white"
+                          onClick={closeMenu}
+                      >
+                        Получить консультацию
+                      </Link>
                     </div>
-
-                    <Link href="/about" className="text-white text-xl py-3 flex items-center space-x-3" onClick={closeMenu}>
-                      <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <Users size={20} />
-                      </div>
-                      <span>О нас</span>
-                    </Link>
-
-                    <Link
-                        href="/contact"
-                        className="text-white text-xl py-3 flex items-center space-x-3"
-                        onClick={closeMenu}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                        <Phone size={20} />
-                      </div>
-                      <span>Контакты</span>
-                    </Link>
-                  </nav>
-
-                  <div className="mt-auto pt-6">
-                    <Link
-                        href="/contact"
-                        className="block w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-center font-medium text-lg text-white"
-                        onClick={closeMenu}
-                    >
-                      Получить консультацию
-                    </Link>
                   </div>
                 </div>
               </div>
